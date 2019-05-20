@@ -1,64 +1,51 @@
 import 'package:flutter_web/material.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(TabBarErnShu());
+}
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class TabBarErnShu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ErnShu IT Support Site',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      home: MyHomePage(title: 'ErnShu Website'),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: <Widget>[
-          AssetImage('web_images/ERNSHU Logo 150x50.jpg', package: 'my_icons'),
-        ],
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (choose the "Toggle Debug Paint" action
-          // from the Flutter Inspector in Android Studio, or the "Toggle Debug
-          // Paint" command in Visual Studio Code) to see the wireframe for each
-          // widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Ernie Cho',
+      home: DefaultTabController(
+        length: 4,
+        child: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              tabs: [
+                Tab(icon: Text("About")),
+                Tab(icon: Text("Services")),
+                Tab(icon: Text("Contact")),
+                Tab(icon: Text("Apps")),
+              ],
             ),
-          ],
+            title: Text('ErnShu Corporation'),
+          ),
+          body: TabBarView(
+            children: [
+              Text("""ERNSHU provide corp computer and network technical support for small to large corperate sector.
+               We can help remote access to router and switches computer network. Lan lines that stop working can be fix by ErnShu LLC in less than one to three days work week or weekend.
+               Contract for quote on projects installing thoasands of PC's, Mac's, Network devices, and running ethernet cable DMARC to Server Rooms.
+               """,
+              textAlign: TextAlign.center,
+              //overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+              Text("""
+              Services
+
+Installing lines from DMARC to Server room.
+Installing VOIP phones and running ethernet wire to 
+Removing Cisco equipment and Installing Routers, Switches, and POE Switches.
+              """, 
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+              Text("Contact"),
+              Text("Apps"),
+            ],
+          ),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
