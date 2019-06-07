@@ -12,17 +12,21 @@ public class DataFileController {
             this.mWord = DataFileObject.WordDef[mIndexLoc];
         } else {
             this.mWord = DataFileObject.ChineseWordDef[mIndexLoc];
-        }
+        };
         return mWord;
     }
 
+    public Boolean getSwitch() {
+        return SwitchBtn;
+    }
+
     public void setSwitch(boolean bb) {
-        if (bb = true) {
+        this.SwitchBtn = bb;
+        if (this.SwitchBtn == true) {
             this.DataFileSizeLength = DataFileObject.WordDef.length;
         } else {
             this.DataFileSizeLength = DataFileObject.ChineseWordDef.length;
-        }
-        this.SwitchBtn = bb;
+        };
     }
 
     public String getDef() {
@@ -30,12 +34,12 @@ public class DataFileController {
         mDef = DataFileObject.WordDef[mIndexLoc + 1];
     } else {
         mDef = DataFileObject.ChineseWordDef[mIndexLoc + 1];
-    }
+    };
         return mDef;
     }
 
     public int getIndex() {
-        return (mIndexLoc / 2);
+        return ((mIndexLoc / 2)+1);
     }
 
     public void setIndex(int sIndex) {
