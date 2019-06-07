@@ -1,7 +1,14 @@
 import 'package:flutter_web/material.dart';
 
 void main() {
-  runApp(TabBarErnShu());
+  runApp(MaterialApp(
+    title: "ErnShu Code Landing Page",
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+    ),
+    home: TabBarErnShu(),
+  ));
 }
 
 class TabBarErnShu extends StatelessWidget {
