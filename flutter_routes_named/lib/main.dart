@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(new MyApp());
-
+void main() => runApp(MyApp());
 
 class Order {
   DateTime _dt;
@@ -15,14 +14,18 @@ class Order {
   DateTime get dt => _dt;
 }
 
+
 class Customer {
-  String _name, _location;
+  String _name;
+  String _location;
   List<Order> _orders;
 
-  Customer(this._name,this._location,this._orders);
+  Customer(this._name, this._location, this._orders);
 
   List<Order> get orders => _orders;
+
   String get location => _location;
+
   String get name => _name;
 }
 
@@ -31,39 +34,30 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: new HomePageWidget(),
+      routes: <String, WidgetBuilder>{
+        '/customer': (context) => CustomerWidget(),
+        '/order': (context) => OrderWidget(),
+      },
     );
   }
 }
 
+// ignore: must_be_immutable
 class HomePageWidget extends StatelessWidget {
   List<Customer> _customerList = [
-    Customer("Bike Corp", "Atlanta", [
-      Order(DateTime(2018,11,17),"Bicycle parts", 197.02),
-      Order(DateTime(2018,12,1),"Bicycle parts", 107.45),
-    ]),
-    Customer("Trust Corp", "Atlanta", [
-      Order(DateTime(2018,1,3),"Shredder parts", 97.02),
-      Order(DateTime(2018,3,13),"Shredder parts", 7.45),
-      Order(DateTime(2018,5,2),"Shredder parts", 7.45),
-    ]),
-    Customer("Jilly Boutique", "Birmingham", [
-      Order(DateTime(2018,1,3),"Display unit", 97.01),
-      Order(DateTime(2018,3,3),"Desk unit", 12.25),
-      Order(DateTime(2018,3,21),"Clothes rack", 97.15),
-    ]),
+    Customer("Bike Corp","Atlanta",[]),
+    Customer("Trust Corp","Atlanta",[]),
+    Customer("Jilly Boutique","Birmingham",[]),
   ];
 
   HomePageWidget({Key key}) : super(key: key);
 
   void navigateToCustomer(BuildContext context, Customer customer) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CustomerWidget(customer)),
-    );
+    Navigator.pushNamed(context, "/customer");
   }
 
   ListTile createCustomerWidget(BuildContext context, Customer customer) {
@@ -71,75 +65,75 @@ class HomePageWidget extends StatelessWidget {
       title: Text(customer.name),
       subtitle: Text(customer.location),
       trailing: Icon(Icons.arrow_right),
-      onTap: () => navigateToCustomer(context, customer),);
+      onTap: () => navigateToCustomer(context, customer));
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> customerList = List.from(_customerList
-    .map((Customer customer) => createCustomerWidget(context, customer)));
+    .map((Customer customer) => createCustomerWidget(context, customer) ));
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('Customer'),
+        title: new Text("Customers"),
       ),
       body: new Center(
         child: new ListView(
           children: customerList,
         ),
-      ),);
+      ),
+    );
   }
 }
 
+// ignore: must_be_immutable
 class CustomerWidget extends StatelessWidget {
-  Customer _customer;
+  List<Order> _orderList = [
+    Order(DateTime(2018,11,17), "Bicycle parts", 197.00),
+    Order(DateTime(2018,12,1), "Bicycle parts", 107.45),
+  ];
 
-  CustomerWidget(this._customer);
+  CustomerWidget({Key key}) : super(key: key);
 
-  void navigateToOrder(BuildContext context, Customer customer, Order order) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => OrderWidget(customer, order)),
-    );
+  void navigateToOrder(BuildContext context, Order order) {
+    Navigator.pushNamed(context, "/order");
   }
 
-  ListTile createOrderListWidget(
-          BuildContext context, Customer customer, Order order){
+  ListTile createOrderWidget(BuildContext context, Order order) {
     return new ListTile(
       title: Text(order.description),
       subtitle: Text("${order.dt.month}/${order.dt.day}/${order.dt.year}:"
       "\$${order.total}"),
       trailing: Icon(Icons.arrow_right),
-      onTap: () => navigateToOrder(context, customer, order),);
+      onTap: () => navigateToOrder(context,order));
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget>widgetList = List.from(_customer.orders.map(
-        (Order order) => createOrderListWidget(context, _customer, order)));
+    List<Widget> widgetList = List.from(
+      _orderList.map((Order order) => createOrderWidget(context, order)));
     widgetList.insert(
         0,
         Container(
           child: Column(
             children: <Widget>[
               Text(
-                _customer.name,
+                "BikeCorp",
                 style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
               ),
               Text(
-                _customer.location,
-                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                "Atlanta",
+                    style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
               ),
               Text(
-                "${_customer.orders.length}",
-                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                "2 Orders",
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
             ],
           ),
-          padding: EdgeInsets.all(20.0),
-        ));
+          padding: EdgeInsets.all(20.0),));
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Customer Info"),
+        title: new Text("Customers"),
       ),
       body: new Center(
         child: new ListView(
@@ -151,44 +145,38 @@ class CustomerWidget extends StatelessWidget {
 }
 
 class OrderWidget extends StatelessWidget {
-  Customer _customer;
-  Order _order;
-
-  OrderWidget(this._customer, this._order);
+  OrderWidget();
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Order info"),
+        title: new Text("Order Info"),
       ),
       body: new Padding(
           padding: EdgeInsets.all(20.0),
         child: new ListView(
           children: <Widget>[
-            Text(_customer.name,
+            Text("BikeCorp",
             style: TextStyle(
               fontSize: 30.0,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center),
-            Text(_customer.location,
+            Text("Atlanta",
             style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center),
             Text(""),
-            Text( _order.description,
-              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center),
-            Text( "${_order.dt.month}/${_order.dt.day}/${_order.dt.year}:"
-                "\$${_order.total}",
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center),
+            Text("Bicycle Parts",
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center),
+            Text("12/1/2019 \$123.23",
+            style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center)
           ],
         ),
-      ),);
+
+      ),
+    );
   }
-
-
 }
-
-
