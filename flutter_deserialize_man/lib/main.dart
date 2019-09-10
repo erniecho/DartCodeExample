@@ -68,6 +68,97 @@ class _MyHomePageState extends State<MyHomePage> {
         "{\"name\":\"Tracy Brown\",\"add1\":\"9625 Roberts Avenue\"," +
     "\"city\":\"Birmingham\",\"state\":\"AL\",\"children\":[" +
     "]}";
+    final String adultFather =
+        "{\"name\":\"John Brown\",\"add1\":\"9625 Roberts Avenue\"," +
+            "\"city\":\"Birmingham\",\"state\":\"AL\",\"children\":[" +
+            grandchild +
+            "]}";
+    final String adultNoChildren =
+        "{\"name\":\"Jill Jones\",\"add1\":\"100 East Road\"," +
+            "\"city\":\"Ocala\",\"state\":\"FL\",\"children\":[" +
+            "]}";
+    final String grandfather =
+        "{\"name\":\"John Brown\",\"add1\":\"9625 Roberts Avenue\"," +
+            "\"city\":\"Birmingham\",\"state\":\"AL\",\"children\":[" +
+            adultFather +
+            "," +
+            adultNoChildren +
+            "]}";
+
+    _jsonTextController.text = grandfather;
+  }
+
+  TextFormField _createJsonTextFormField() {
+    return new TextFormField(
+      // ignore: missing_return
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Please enter the json';
+        }
+      },
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        hintText: 'Json',
+        labelText: 'Enter the json for a person.'),
+      controller: _jsonTextController,
+      autofocus: true,
+      maxLines: 8,
+      keyboardType: TextInputType.multiline);
+  }
+
+  _convertJsonToPerson() {
+    _error = null;
+    _person = null;
+    setState(() {
+      try {
+        final String jsonText = _jsonTextController.text;
+        debugPrint("JSON TEXT: ${jsonText}");
+        var decoded = json.decode(jsonText);
+        debugPrint("DECODED: type:${decoded.runtimeType}value: ${decoded}");
+        _person = Person.fromJson(decoded);
+        debugPrint("PERSON OBJECT: type: ${_person.runtimeType}value:"
+        "${_person}");
+      } catch (e) {
+        debugPrint("ERROR: ${e}");
+        _error = e.toString();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Recursive Deserialization"),
+      ),
+      body: Center(
+        child: Padding(
+          child: ListView(
+            children: <Widget>[
+              _createJsonTextFormField(),
+              Padding(
+                padding: EdgeInsets.only(top: 10.0),
+                child: Text(
+                  _error == null ? '' : 'An error occured:\n\n${_error}',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10.0),
+                child: Text(_person == null
+                ? 'Person is null'
+                :'Converted to Person object:\n\n${_person}'),),
+            ],
+          ),
+          padding: EdgeInsets.all(10.0),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _convertJsonToPerson,
+        tooltip: 'Increment',
+        child: Icon(Icons.refresh),
+      ),
+    );
   }
 
 }
