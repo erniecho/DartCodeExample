@@ -48,6 +48,7 @@ class MyHomePage extends StatefulWidget {
 class _HomePageState extends State<MyHomePage> {
   String _title;
   List<Car> _cars;
+  Car _selectCar;
 
   _HomePageState(this._title) {
     _cars = [
@@ -73,10 +74,18 @@ class _HomePageState extends State<MyHomePage> {
       ),
     ];
   }
+
+  void _selectionHandler(Car selectdCar) {
+    setState(() {
+      _title = 'Selected ${selectdCar._make}${selectdCar._model}';
+      _selectCar = selectdCar;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<CarWidget> carWidget = _cars.map((Car car) {
-      return CarWidget(car);
+      return CarWidget(car, car == _selectCar, _selectionHandler);
     }).toList();
     return new Scaffold(
       appBar: new AppBar(
@@ -87,16 +96,27 @@ class _HomePageState extends State<MyHomePage> {
   }
 }
 class CarWidget extends StatelessWidget {
-  CarWidget(this._car) : super();
+  CarWidget(this._car, this._isSelected, this._parentSelectionHandler)
+      : super();
 
   final Car _car;
+  final bool _isSelected;
+  final ValueChanged<Car> _parentSelectionHandler;
+
+  void _handleTap() {
+    _parentSelectionHandler(_car);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(20.0),
+      child: GestureDetector(
+      onTap: _handleTap,
       child: Container(
-        decoration: BoxDecoration(border: Border.all()),
+        decoration: BoxDecoration(
+            color: _isSelected ? Colors.blue : Colors.white,
+            border: Border.all()),
         padding: EdgeInsets.all(20.0),
         child: Center(
           child: Column(children: <Widget>[
@@ -106,6 +126,6 @@ class CarWidget extends StatelessWidget {
              padding: EdgeInsets.only(top: 20.0),
              child: Image.network(_car._imageSrc),
             )],),
-        ),),);
+        ),),),);
   }
 }
