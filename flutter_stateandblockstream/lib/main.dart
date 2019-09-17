@@ -99,7 +99,143 @@ class Bloc {
     }
   }
 
+  Stream<List<Customer>> get customerListStream => _customerListSubject.stream;
+  final _customerListSubject = BehaviorSubject<String>();
+
+  Stream<String> get messageStream => _messageSubject.stream;
+  final _messageSubject = BehaviorSubject<String>();
+
+  Sink<Customer> get upAction => _upActionStreamController.sink;
+  final _upActionStreamController = StreamController<Customer>();
+
+  Sink<Customer> get downAction => _downActionStreamController.sink;
+  final _downActionStreamController = StreamController<Customer>();
+}
 
 
+class BlocProvider extends InheritedWidget {
+  final Bloc bloc;
 
+  BlocProvider({
+    Key key,
+    @required this.bloc,
+    Widget child,
+}) : super(key: key, child: child);
+
+  @override
+  bool updateShouldNotify(InheritedWidget oldWidget) => true;
+
+  static Bloc of(BuildContext context) =>
+      (context.inheritFromWidgetOfExactType(BlocProvider) as BlocProvider).bloc;
+}
+
+class CustomerWidget extends StatelessWidget {
+  final Customer _customer;
+
+  CustomerWidget(this._customer);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = BlocProvider.of(context);
+    Text text = Text(_customer.name,
+    style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold));
+    IconButton upButton = IconButton(
+      icon: new Icon(Icons.arrow_drop_up, color: Colors.blue),
+      onPressed: () {
+        bloc.downAction.add(_customer);
+      },);
+    IconButton downButton = IconButton(
+      icon: new Icon(Icons.arrow_drop_down, color: Colors.blue),
+      onPressed: () {
+        bloc.downAction.add(_customer);
+      },);
+    List<Widget> children = [];
+    children.add(Expanded(
+    child: Padding(padding: EdgeInsets.only(left: 20.0),child: text)));
+    if (_customer.upButton) {
+      children.add(upButton);
+    }
+    if (_customer.downButton) {
+      children.add(downButton);
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(6.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
+        child: Container(
+          decoration: BoxDecoration(color: Colors.cyan[100]),
+          child: Row(
+            children: children,
+            mainAxisAlignment: MainAxisAlignment.start,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void main() => runApp(new CustomerAppWidget());
+
+class CustomerAppWidget extends StatelessWidget {
+  final Bloc _bloc = new Bloc();
+
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: 'Flutter Demo',
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: BlocProvider(
+          bloc: _bloc,
+        child: new CustomerListWidget(
+          title: 'Flutter'
+          'Demo Home Page',
+          messageStream: _bloc.messageStream,
+        ),
+      ),
+    );
+  }
+}
+
+class CustomerListWidget extends StatelessWidget{
+  CustomerListWidget({Key key, this.title, this.messageStream})
+  : super(key: key) {
+   this.messageStream.listen((message) {
+     _scaffoldKey.currentState.showSnackBar(SnackBar(
+     content: Text(message),
+     duration: Duration(seconds: 1),
+     ));
+   });
+  }
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final String title;
+  final Stream<String>messageStream;
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = BlocProvider.of(context);
+    return new Scaffold(
+      key: _scaffoldKey,
+      appBar: new AppBar(
+        title: new Text(title),
+      ),
+      body: StreamBuilder<List<Customer>>(
+        stream: bloc.customerListStream,
+        initialData: bloc.initCustomerList(),
+        builder: (context, snapshot) {
+          List<Widget> customerWidgets =
+              snapshot.data.map((Customer customer) {
+                return CustomerWidget(customer);
+              }).toList();
+          return ListView(
+            padding: const EdgeInsets.all(10.0),
+            children: customerWidgets,
+          );
+        },
+      ),
+    );
+  }
 }
