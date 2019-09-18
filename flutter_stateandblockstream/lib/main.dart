@@ -100,7 +100,7 @@ class Bloc {
   }
 
   Stream<List<Customer>> get customerListStream => _customerListSubject.stream;
-  final _customerListSubject = BehaviorSubject<String>();
+  final _customerListSubject = BehaviorSubject<List<Customer>>();
 
   Stream<String> get messageStream => _messageSubject.stream;
   final _messageSubject = BehaviorSubject<String>();
@@ -232,10 +232,7 @@ class CustomerListWidget extends StatelessWidget{
               }).toList();
           return ListView(
             padding: const EdgeInsets.all(10.0),
-            children: customerWidgets,
-          );
-        },
-      ),
-    );
+            children: customerWidgets);
+        },),);
   }
 }
