@@ -260,7 +260,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         DbWidget.of(context).addWord(word).then((_) {
           _loadNextWord();
           _showSnackBar("Added word.");
-        }).catchError((e) => _showSnackBar(e.toString(), error: true))
+        }).catchError((e) => _showSnackBar(e.toString(), error: true));
       } catch (e) {
         _showSnackBar(e.toString(), error: true);
       }
@@ -268,8 +268,108 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
   // _deleteWord method function needs to be added here.
 
+  _deleteWord(BuildContext context) {
+    _showConfirmDialog(context, _word).then((result) {
+      if (result == true) {
+        try {
+          DbWidget.of(context).deleteWord(_word).then((_) {
+            _loadNextWord();
+            _showSnackBar("Deleted word.");
+          }).catchError(() => _showSnackBar(e.toString(), error: true));
+        } catch (e) {
+          _showSnackBar(e.toString(), error: true);
+        }
+      }
+    });
+  }
+}
 
+class WordWidget extends StatefulWidget {
+  WordWidget(this._widgetLanguage, this._language, this._word) {}
 
+  final Language _widgetLanguage;
+  final Language _language;
+  final Word _word;
+
+  @override
+  _WordWidgetState createState() => _WordWidgetState();
+}
+
+class _WordWidgetState extends State<WordWidget> {
+  bool _revealed = false;
+
+  _WordWidgetState() {}
+
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    _revealed = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool isReveal = widget._widgetLanguage == widget._language;
+
+    List<Widget> widgets = [];
+
+    String titleText = isReveal
+    ? "What's the word in ${getLanguageName(widget._widgetLanguage)}?"
+        : "Word in ${getLanguageName(widget._widgetLanguage)} is:";
+
+    widgets.add(Padding(
+      padding: EdgeInsets.only(bottom: 20.0),
+      child: Text( titleText,
+        style: const TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center)));
+
+    if ((isReveal) && (!_revealed)) {
+      widgets.add(FloatingActionButton(
+      child: Icon(Icons.remove_red_eye),
+        onPressed: () => {setState(() => _revealed = true)}));
+    } else {
+      String word = widget._word == null
+          ? ""
+          : widget._widgetLanguage == Language.english
+          ? widget._word._english
+          : widget._word._spanish;
+      widgets.add(Text(
+        word,
+        style: const TextStyle(
+          fontSize: 30.0,
+          fontWeight: FontWeight.bold,
+          fontStyle: FontStyle.italic),
+        textAlign: TextAlign.center,
+      ));
+    }
+    return Expanded(
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: widgets),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            colorFilter: new ColorFilter.mode(
+              Colors.white.withOpacity(0.3), BlendMode.dstATop),
+            image: NetworkImage(widget._widgetLanguage == Language.english
+            ? "https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/" +
+                "Flag_of_the_United_Kingdom.svg/" +
+                "510px-Flag_of_the_United_Kingdom.svg.png"
+                : "https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/" +
+                "Flag_of_Spain.svg/400px-Flag_of_Spain.svg.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        padding: EdgeInsets.all(10.0),
+      ),);
+      }
+
+      String getLanguageName(Language language) {
+        return widget._widgetLanguage == Language.spanish ? "Spanish" : "English";
+      }
+}
+
+class AddDialogWidget extends StatelessWidget {
+  static final _formKey = GlobalKey<FormState>();
 
 
 }
