@@ -58,6 +58,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class DbWidget extends InheritedWidget {
   final _random = new Random();
   Database _database;
@@ -104,6 +105,7 @@ class DbWidget extends InheritedWidget {
       return Word(words[i]['id'],words[i]['english'],words[i]['spanish']);
     });
 
+    // ignore: avoid_init_to_null
     Word nextWord = null;
     do {
       int nextWordIndex = _nextRandom(0, list.length);
@@ -157,7 +159,8 @@ class _HomeWidgetState extends State<HomeWidget> {
   _showSnackBar(String content, {bool error = false}) {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
       content:
-      Text('${error ? "An unexpected error occurred: ":""}${content}'),
+      // ignore: unnecessary_brace_in_string_interps
+      Text('${error ? "An unexpected error occurred: ": ""}${content}'),
     ));
   }
 
@@ -285,7 +288,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 }
 
 class WordWidget extends StatefulWidget {
-  WordWidget(this._widgetLanguage, this._language, this._word) {}
+  WordWidget(this._widgetLanguage, this._language, this._word);
 
   final Language _widgetLanguage;
   final Language _language;
@@ -298,9 +301,10 @@ class WordWidget extends StatefulWidget {
 class _WordWidgetState extends State<WordWidget> {
   bool _revealed = false;
 
-  _WordWidgetState() {}
+  _WordWidgetState();
 
   @override
+  // ignore: must_call_super
   void didUpdateWidget(Widget oldWidget) {
     _revealed = false;
   }
@@ -324,6 +328,7 @@ class _WordWidgetState extends State<WordWidget> {
     if ((isReveal) && (!_revealed)) {
       widgets.add(FloatingActionButton(
       child: Icon(Icons.remove_red_eye),
+        // ignore: sdk_version_set_literal
         onPressed: () => {setState(() => _revealed = true)}));
     } else {
       String word = widget._word == null
@@ -370,6 +375,98 @@ class _WordWidgetState extends State<WordWidget> {
 
 class AddDialogWidget extends StatelessWidget {
   static final _formKey = GlobalKey<FormState>();
+static final TextEditingController _englishTextController =
+    new TextEditingController();
+static final TextEditingController _spanishTextController =
+    new TextEditingController();
 
+AddDialogWidget(): super();
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 260.0,
+      width: 250.0,
+      child: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text("Add Word",
+              style: TextStyle(
+                fontSize: 20.0, fontWeight: FontWeight.bold)),
+              TextFormField(
+                // ignore: missing_return
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "Please enter the word in English.";
+                  }
+                },
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.location_city),
+                  hintText: 'English',
+                  labelText: 'Enter the word in English'),
+                onSaved: (String value) {},
+                controller: _englishTextController),
+              TextFormField(
+                // ignore: missing_return
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter the word in Spanish.';
+                  }
+                },
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.location_city),
+                  hintText: 'Spanish',
+                  labelText: 'Enter the word in Spanish'),
+                onSaved: (String value) {},
+                controller: _spanishTextController),
+              FlatButton(
+                child: Text('Add'),
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+                    _formKey.currentState.save();
+                    Navigator.pop(
+                      context,
+                      Word(null, _englishTextController.text,
+                      _spanishTextController.text));
+                    _englishTextController.text = "";
+                    _spanishTextController.text = "";
+                  }
+                },
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Future<bool> _showConfirmDialog(BuildContext context, Word word) async {
+  return await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirm'),
+        content: Text(
+          'Are you sure you want to delete the word "${word.english}?'),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: const Text('Yes'),
+          ),
+          FlatButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text('No'),
+          ),
+        ],
+      );
+    });
 }
