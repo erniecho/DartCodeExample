@@ -61,5 +61,78 @@ class ColorOptions {
   accentColor = jsonToColor(json['accentColor']);
 
 
+  static String colorToJson(Color color) {
+    DropdownMenuItem menuItemForColor =
+        COLOR_DROPDOWN_MENU_ITEMS.firstWhere((item) => item.value == color);
+    return (menuItemForColor.child as Text).data;
+  }
+
+  static Color jsonToColor(String json) {
+    DropdownMenuItem menuItemForColor = COLOR_DROPDOWN_MENU_ITEMS
+        .firstWhere((item) => (item.child as Text).data == json);
+    return menuItemForColor.value;
+  }
 }
 
+class GridOptions {
+  int crossAxisCountPortrait;
+  int crossAxisCountLandscape;
+  double childAspectRatio;
+  double padding;
+  double spacing;
+
+  GridOptions({
+      @required this.crossAxisCountPortrait,
+      @required this.crossAxisCountLandscape,
+      @required this.childAspectRatio,
+      @required this.padding,
+      @required this.spacing});
+
+  @override
+  String toString() {
+    return 'GridOptions{_crossAxisCountPortrait: $crossAxisCountPortrait, '
+    '_crossAxisCountLandscape: $crossAxisCountLandscape, '
+    '_childAspectRatio: $childAspectRatio, '
+    '_padding: $padding, '
+    '_spacing: $spacing}';
+  }
+}
+
+class ThemeBLOC extends InheritedWidget {
+  String _path;
+
+  ThemeBLOC({Key key, @required Widget child})
+  : assert(child != null),
+  super(key: key, child: child) {
+    getApplicationDocumentsDirectory()
+        .then((directory) => _path = directory.path);
+  }
+
+  ColorOptions _colorOptions = ColorOptions(
+      primaryColor: COLOR_NAVY_BLUE,
+      scaffoldBackgroundColor: COLOR_LIGHT_BLUE,
+      accentColor: COLOR_SAND);
+
+  static ThemeBLOC of(BuildContext context) {
+    return context.inheritFromWidgetOfExactType(ThemeBLOC) as ThemeBLOC;
+  }
+
+  ThemeData get startingThemeData {
+    return createThemeDataFromColorOptions();
+  }
+
+
+  ThemeData createThemeDataFromColorOptions() {
+    return ThemeData(
+      primaryColor: _colorOptions.primaryColor,
+      scaffoldBackgroundColor: _colorOptions.scaffoldBackgroundColor,
+      accentColor: _colorOptions.accentColor);
+  }
+
+  @override
+  bool updateShouldNotify(InheritedWidget oldWidget) {
+    return false;
+  }
+
+
+}
