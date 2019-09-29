@@ -274,9 +274,72 @@ class ThemeBLOC extends InheritedWidget {
             List<String> names = ThemeBLOC.of(context).filenames;
             _showOpenDialog(context, names);
           }),
+        IconButton(
+          icon: Icon(Icons.settings),
+          tooltip: 'Save',
+          onPressed: () => _showSaveAsDialog(context))
       ]),
+      body: OrientationBuilder(builder: (context, orientation){
+        return GridView.count(
+            crossAxisCount: (orientation == Orientation.portrait)
+                ? options.crossAxisCountPortrait
+                : options.crossAxisCountLandscape,
+          childAspectRatio: options.childAspectRatio,
+          padding: EdgeInsets.all(options.padding),
+          mainAxisSpacing: options.spacing,
+          crossAxisSpacing: options.spacing,
+          children: _kittenTiles);
+      }),
     );
   }
 
-
+  void _showColorOptionsDialog() async {
+    ColorOptions colorOptions = await showDialog<ColorOptions> (
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: ColorDialogWidget(ThemeBLOC.of(context).colorOptions));
+      });
+    if (colorOptions != null) {
+      ThemeBLOC.of(context).colorOptions = colorOptions;
+    }
   }
+
+  void _showOpenDialog(BuildContext context, List<String> name) async {
+    List<SimpleDialogOption> chilredn = names.map((s) {
+      return SimpleDialogOption(
+        onPressed: () {
+          Navigator.pop(context, s);
+        },
+        child: Text(s),
+      );
+    }).toList(growable: false);
+
+    String name = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+       return SimpleDialog(title: const Text('Open'), children: chilredn);
+      });
+
+    if (name != null) {
+      setState(() {
+        ThemeBLOC.of(context).open(name);
+      });
+    }
+  }
+
+  void _showSaveAsDialog(BuildContext context) async {
+    String name = await showDialog<String>(
+      context: context
+          builder: (BuildContext context) {
+        return Dialog(child: SaveAsDialogWidget());
+    });
+    if (name != null) {
+      ThemeBLOC.of(context).saveAs(name);
+    }
+  }
+
+
+
+
+}
