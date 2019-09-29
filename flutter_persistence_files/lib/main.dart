@@ -134,5 +134,149 @@ class ThemeBLOC extends InheritedWidget {
     return false;
   }
 
+  Stream<ThemeData> get themeStream => _themeSubject.stream;
+  final _themeSubject = BehaviorSubject<ThemeData>();
 
-}
+  ColorOptions get colorOptions => _colorOptions;
+
+  set colorOptions(ColorOptions value) {
+    _colorOptions = value;
+    _themeSubject.add(createThemeDataFromColorOptions());
+  }
+
+  List<String> get filenames {
+    List<String>filenameList = [];
+    Directory(_path).listSync().forEach((FileSystemEntity fse) {
+      String path = fse.path;
+      if (path.endsWith(".themeColor")) {
+        int startIndex = path.lastIndexOf(Platform.pathSeparator) + 1;
+        int endIndex = path.lastIndexOf(".themeColor");
+        filenameList.add(path.substring(startIndex, endIndex));
+      }
+    });
+    return filenameList;
+  }
+
+  open(String filename) {
+    FileSystemEntity fse =
+        Directory(_path).listSync().firstWhere((FileSystemEntity fse) {
+          String path = fse.path;
+          if (path.endsWith(".themeColor")) {
+            int startIndex = path.lastIndexOf(Platform.pathSeparator) + 1;
+            if (startIndex != -1) {
+              int endIndex = path.lastIndexOf(".themeColor");
+              if (endIndex != -1) {
+                var pathFilename = path.substring(startIndex, endIndex);
+                if (pathFilename == filename) {
+                  return true;
+                }
+              }
+            }
+          }
+          return false;
+        });
+        if (fse != null) {
+          File("${fse.path}").readAsString().then((str) {
+            ColorOptions newColorOptions = ColorOptions.fromJson(jsonDecode(str));
+            this.colorOptions = newColorOptions;
+          });
+        }
+    }
+
+  saveAs(String filename) {
+    String json = jsonEncode(_colorOptions.toJson());
+    File("${_path}/${filename}.themeColor").writeAsString(json);
+    }
+  }
+  class GridViewApp extends StatelessWidget {
+    @override
+    Widget build(BuildContext context) {
+      ThemeBLOC bloc = ThemeBLOC.of(context);
+      return StreamBuilder<ThemeData>(
+        stream: bloc._themeSubject,
+        initialData: bloc.startingThemeData,
+        builder: (context, snapshot) {
+          ThemeData themeData = snapshot.data;
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: themeData,
+            home: HomeWidget(title: 'Flutter Demo Home Page'),
+          );
+        });
+    }
+  }
+
+  class HomeWidget extends StatefulWidget {
+    HomeWidget({Key key, this.title}) : super(key: key);
+    final String title;
+
+    @override
+    _HomeWidgetState createState() => new _HomeWidgetState();
+  }
+
+  class _HomeWidgetState extends State<HomeWidget> {
+  List<Widget> _kittenTiles = [];
+  int _gridOptionsIndex = 0;
+  List<GridOptions> _gridOptions = [
+    GridOptions(
+      crossAxisCountPortrait: 2,
+      crossAxisCountLandscape: 3,
+      childAspectRatio: 1.0,
+      padding: 10.0,
+      spacing: 10.0),
+    GridOptions(
+        crossAxisCountPortrait: 3,
+        crossAxisCountLandscape: 4,
+        childAspectRatio: 1.5,
+        padding: 10.0,
+        spacing: 10.0),
+    GridOptions(
+        crossAxisCountPortrait: 2,
+        crossAxisCountLandscape: 3,
+        childAspectRatio: 2.0,
+        padding: 10.0,
+        spacing: 30.0),
+  ];
+
+  _HomeWidgetState() : super() {
+    for (int i = 200; i < 1000; i += 100) {
+      String imageUrl = "http://placekitten.com/200/${i}";
+      _kittenTiles.add(GridTile(
+        header: GridTileBar(
+          title:
+          Text("Cats", style:  TextStyle(fontWeight: FontWeight.bold))),
+        child: Image.network(imageUrl, fit: BoxFit.cover)));
+    }
+  }
+
+  void _tryMoreGridOptions() {
+    setState(() {
+      _gridOptionsIndex++;
+          if (_gridOptionsIndex >= (_gridOptions.length - 1)) {
+            _gridOptionsIndex = 0;
+          }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    GridOptions options = _gridOptions[_gridOptionsIndex];
+    return Scaffold(
+      appBar: AppBar(title: Text("GridView"), actions: [
+        IconButton(
+          icon: Icon(Icons.settings),
+          tooltip: 'Color Options',
+          onPressed: () => _showColorOptionsDialog()),
+        IconButton(
+          icon: Icon(Icons.folder_open),
+          tooltip: 'Open',
+          onPressed: () {
+            List<String> names = ThemeBLOC.of(context).filenames;
+            _showOpenDialog(context, names);
+          }),
+      ]),
+    );
+  }
+
+
+  }
