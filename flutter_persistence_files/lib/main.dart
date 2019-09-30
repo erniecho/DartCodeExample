@@ -98,6 +98,7 @@ class GridOptions {
   }
 }
 
+// ignore: must_be_immutable
 class ThemeBLOC extends InheritedWidget {
   String _path;
 
@@ -185,7 +186,7 @@ class ThemeBLOC extends InheritedWidget {
 
   saveAs(String filename) {
     String json = jsonEncode(_colorOptions.toJson());
-    File("${_path}/${filename}.themeColor").writeAsString(json);
+    File("$_path/$filename.themeColor").writeAsString(json);
     }
   }
   class GridViewApp extends StatelessWidget {
@@ -240,7 +241,7 @@ class ThemeBLOC extends InheritedWidget {
 
   _HomeWidgetState() : super() {
     for (int i = 200; i < 1000; i += 100) {
-      String imageUrl = "http://placekitten.com/200/${i}";
+      String imageUrl = "http://placekitten.com/200/$i";
       _kittenTiles.add(GridTile(
         header: GridTileBar(
           title:
@@ -249,6 +250,7 @@ class ThemeBLOC extends InheritedWidget {
     }
   }
 
+  // ignore: unused_element
   void _tryMoreGridOptions() {
     setState(() {
       _gridOptionsIndex++;
@@ -305,8 +307,8 @@ class ThemeBLOC extends InheritedWidget {
     }
   }
 
-  void _showOpenDialog(BuildContext context, List<String> name) async {
-    List<SimpleDialogOption> chilredn = names.map((s) {
+  void _showOpenDialog(BuildContext context, List<String> names) async {
+    List<SimpleDialogOption> children = names.map((s) {
       return SimpleDialogOption(
         onPressed: () {
           Navigator.pop(context, s);
@@ -318,7 +320,7 @@ class ThemeBLOC extends InheritedWidget {
     String name = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-       return SimpleDialog(title: const Text('Open'), children: chilredn);
+       return SimpleDialog(title: const Text('Open'), children: children);
       });
 
     if (name != null) {
@@ -330,7 +332,7 @@ class ThemeBLOC extends InheritedWidget {
 
   void _showSaveAsDialog(BuildContext context) async {
     String name = await showDialog<String>(
-      context: context
+      context: context,
           builder: (BuildContext context) {
         return Dialog(child: SaveAsDialogWidget());
     });
@@ -338,8 +340,133 @@ class ThemeBLOC extends InheritedWidget {
       ThemeBLOC.of(context).saveAs(name);
     }
   }
+}
 
+// ignore: must_be_immutable
+class ColorDialogWidget extends StatefulWidget {
+  ColorOptions _colorOptions;
 
+  ColorDialogWidget(this._colorOptions);
 
+  @override
+  _CustomDialogWidgetState createState() =>
+      new _CustomDialogWidgetState(ColorOptions.copyOf(this._colorOptions));
+}
 
+class _CustomDialogWidgetState extends State<ColorDialogWidget> {
+  ColorOptions _colorOptions;
+
+  _CustomDialogWidgetState(this._colorOptions);
+
+  @override
+  Widget build(BuildContext context) {
+  return Container(
+    height: 400.0,
+    width: 250.0,
+    child: Column(mainAxisAlignment: MainAxisAlignment.spaceAround,children: <Widget>[
+      Text("Colors",
+      style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+        Spacer(),
+        Text("Primary Color"),
+        Spacer(),
+        new DropdownButton<Color>(
+            value: _colorOptions.primaryColor,
+          items: COLOR_DROPDOWN_MENU_ITEMS,
+          onChanged: (newValue) {
+              setState(() {
+                _colorOptions.primaryColor = newValue;
+              });
+          },
+        ),
+        Spacer(),
+      ],),
+      Row(mainAxisAlignment: MainAxisAlignment.center,children: <Widget>[
+        Spacer(),
+        Text("Background Color"),
+        Spacer(),
+        new DropdownButton<Color>(
+            value: _colorOptions.scaffoldBackgroundColor,
+          items: COLOR_DROPDOWN_MENU_ITEMS,
+          onChanged: (newValue) {
+            setState(() {
+              _colorOptions.scaffoldBackgroundColor = newValue;
+            });
+          },
+        ),
+        Spacer(),
+      ],),
+      Row(mainAxisAlignment:  MainAxisAlignment.center, children: <Widget>[
+        Spacer(),
+        Text("Accent Color"),
+        Spacer(),
+        new DropdownButton<Color>(
+            value: _colorOptions.accentColor,
+          items: COLOR_DROPDOWN_MENU_ITEMS,
+          onChanged: (newValue) {
+              setState(() {
+                _colorOptions.accentColor = newValue;
+              });
+          },
+        ),
+        Spacer(),
+      ],),
+      FlatButton(
+        child: Text("Apply"),
+        onPressed: () => Navigator.pop(context, _colorOptions))
+    ],),);
+  }
+}
+
+class SaveAsDialogWidget extends StatelessWidget {
+  static final _formKey = GlobalKey<FormState>();
+  static final TextEditingController _nameTextController =
+      new TextEditingController();
+
+  SaveAsDialogWidget() : super();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 260.0,
+      width: 250.0,
+      child: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Text("Save As",
+              style: TextStyle(
+                fontSize: 20.0, fontWeight: FontWeight.bold),),
+              TextFormField(
+                autofocus: true,
+                // ignore: missing_return
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter the name.';
+                  }
+                },
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.location_city),
+                  hintText: 'Save As',
+                  labelText: 'Enter the name'),
+                keyboardType: TextInputType.text,
+                inputFormatters: [
+                  WhitelistingTextInputFormatter(RegExp(r'[a-z]'))
+                ],
+                onSaved: (String value) {},
+                controller: _nameTextController),
+              FlatButton(
+               child: Text("Save"),
+               onPressed: () {
+                 if (_formKey.currentState.validate()) {
+                   _formKey.currentState.save();
+                   Navigator.pop(context, _nameTextController.text);
+                   _nameTextController.text = "";
+                 }
+               },),
+            ],),),),);
+  }
 }
