@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 
-void main() => runApp(ThemeBLOC(child: new GridView()));
+void main() => runApp(ThemeBLOC(child: new GridViewApp()));
 
 const COLOR_COFFEE = Color.fromARGB(0xFF, 112, 80, 80);
 const COLOR_DARK_BROWN = Color.fromARGB(0xFF, 59, 20, 18);
