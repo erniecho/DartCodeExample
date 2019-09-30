@@ -57,6 +57,88 @@ class ColorOption {
   scaffoldBackgroundColor = jsonToColor(json['scaffoldBackgroundColor']),
   accentColor = jsonToColor(json['accentColor']);
 
+  static String colorToJson(Color color) {
+    DropdownMenuItem menuItemForColor =
+        COLOR_DROPDOWN_MENU_ITEMS.firstWhere((item) => item.value == color);
+    return(menuItemForColor.child as Text).data;
+  }
+
+  static Color jsonToColor(String json) {
+    DropdownMenuItem menuItemForColor = COLOR_DROPDOWN_MENU_ITEMS
+        .firstWhere((item) => (item.child as Text).data == json);
+    return menuItemForColor.value;
+  }
+}
+
+class GridOptions {
+  int crossAxisCountPortrait;
+  int crossAxisCountLandscape;
+  double childAspectRatio;
+  double padding;
+  double spacing;
+
+  GridOptions({
+    @required this.crossAxisCountPortrait,
+    @required this.crossAxisCountLandscape,
+    @required this.childAspectRatio,
+    @required this.padding,
+    @required this.spacing});
+
+  @override
+  String toString() {
+    return 'GridOptions{_crossAxisCountPortrait: $crossAxisCountPortrait, '
+        '_crossAxisCountLandscape: $crossAxisCountLandscape, '
+        '_childAspectRatio: $childAspectRatio, '
+        '_padding: $padding, '
+        '_spacing: $spacing}';
+  }
+}
+
+class ThemeBLOC extends inheritedWidget {
+  SharedPreferences _prefs;
+
+  ThemeBLOC({Key key, @required Widget child})
+  : assert(child != null),
+  super(key: key, child: child) {
+    SharedPreferences.getInstance().then((prefs) => _prefs = prefs);
+  }
+
+  ColorOption _colorOption = ColorOption(
+      primaryColor: COLOR_NAVY_BLUE,
+      scaffoldBackgroundColor: COLOR_LIGHT_BLUE,
+      accentColor: COLOR_SAND);
+
+  static ThemeBLOC of(BuildContext context) {
+    return context.inheritFromWidgetOfExactType(ThemeBLOC) as ThemeBLOC;
+  }
+
+  ThemeData get startingThemeData {
+    return createThemeDataFromColorOptions();
+  }
+
+  ThemeData createThemeDataFromColorOptions() {
+    return ThemeData(
+      primaryColor: _colorOption.primaryColor,
+      scaffoldBackgroundColor:  _colorOption.scaffoldBackgroundColor,
+      accentColor: _colorOption.accentColor);
+  }
+
+  @override
+  bool updateShouldNotify(covariant inheritedWidget oldWidget) {
+    return false;
+  }
+
+  Stream<ThemeData> get themeStream =>_themeSubject.stream;
+  final _themeSubject = BehaviorSubject<ThemeData>();
+
+  ColorOption get colorOptions => _colorOption;
+
+  set colorOptions(ColorOption value) {
+    _colorOption = value;
+    _themeSubject.add(createThemeDataFromColorOptions());
+  }
+
+
 }
 
 
