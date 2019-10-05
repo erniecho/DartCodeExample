@@ -29,15 +29,15 @@ const COLOR_DROPDOWN_MENU_ITEMS = [
   DropdownMenuItem(value: COLOR_YELLOW, child: const Text("Yellow"),),
 ];
 
-class ColorOption {
+class ColorOptions {
   Color primaryColor;
   Color scaffoldBackgroundColor;
   Color accentColor;
 
-  ColorOption({@required this.primaryColor,@required this.scaffoldBackgroundColor,
+  ColorOptions({@required this.primaryColor,@required this.scaffoldBackgroundColor,
   @required this.accentColor});
 
-  ColorOption.copyOf(ColorOption other) {
+  ColorOptions.copyOf(ColorOptions other) {
     this.primaryColor = other.primaryColor;
     this.scaffoldBackgroundColor = other.scaffoldBackgroundColor;
     this.accentColor = other.accentColor;
@@ -94,7 +94,7 @@ class GridOptions {
   }
 }
 
-class ThemeBLOC extends inheritedWidget {
+class ThemeBLOC extends InheritedWidget {
   SharedPreferences _prefs;
 
   ThemeBLOC({Key key, @required Widget child})
@@ -103,7 +103,7 @@ class ThemeBLOC extends inheritedWidget {
     SharedPreferences.getInstance().then((prefs) => _prefs = prefs);
   }
 
-  ColorOption _colorOption = ColorOption(
+  ColorOptions _colorOption = ColorOptions(
       primaryColor: COLOR_NAVY_BLUE,
       scaffoldBackgroundColor: COLOR_LIGHT_BLUE,
       accentColor: COLOR_SAND);
@@ -124,16 +124,16 @@ class ThemeBLOC extends inheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(covariant inheritedWidget oldWidget) {
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
     return false;
   }
 
   Stream<ThemeData> get themeStream =>_themeSubject.stream;
   final _themeSubject = BehaviorSubject<ThemeData>();
 
-  ColorOption get colorOptions => _colorOption;
+  ColorOptions get colorOptions => _colorOption;
 
-  set colorOptions(ColorOption value) {
+  set colorOptions(ColorOptions value) {
     _colorOption = value;
     _themeSubject.add(createThemeDataFromColorOptions());
   }
@@ -190,16 +190,16 @@ class HomeWidget extends StatefulWidget {
   _HomeWidgetState createState() => new _HomeWidgetState();
 }
 
-class _HomeWidgetState extends State<Widget> {
+class _HomeWidgetState extends State<HomeWidget> {
   List<Widget> _kittenTiles = [];
   int _gridOptionsIndex = 0;
   List<GridOptions> _gridOptions = [
     GridOptions(
-      crossAxisCountPortrait: 2,
-      crossAxisCountLandscape: 3,
-      childAspectRatio: 1.0,
-      padding: 10.0,
-      spacing: 10.0),
+        crossAxisCountPortrait: 2,
+        crossAxisCountLandscape: 3,
+        childAspectRatio: 1.0,
+        padding: 10.0,
+        spacing: 10.0),
     GridOptions(
         crossAxisCountPortrait: 3,
         crossAxisCountLandscape: 4,
@@ -215,16 +215,16 @@ class _HomeWidgetState extends State<Widget> {
   ];
 
   _HomeWidgetState() : super() {
-    for (int i = 200; i < 1000; i += 100){
-      String imageUrl = "http://placekitten.com/200/${i}";
+    for (int i = 200; i < 1000; i += 100) {
+      String imageUrl = "http://placekitten.com/200/$i";
       _kittenTiles.add(GridTile(
         header: GridTileBar(
           title: Text("Cats", style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         footer: GridTileBar(
           title: Text("How cute",
-          textAlign: TextAlign.right,
-          style: TextStyle(fontWeight: FontWeight.bold),),
+            textAlign: TextAlign.right,
+            style: TextStyle(fontWeight: FontWeight.bold),),
         ),
         child: Image.network(imageUrl, fit: BoxFit.cover,),
       ));
@@ -234,7 +234,7 @@ class _HomeWidgetState extends State<Widget> {
   void _tryMoreGridOptions() {
     setState(() {
       _gridOptionsIndex++;
-      if (_gridOptionsIndex >= (_gridOptions.length -1)) {
+      if (_gridOptionsIndex >= (_gridOptions.length - 1)) {
         _gridOptionsIndex = 0;
       }
     });
@@ -244,7 +244,7 @@ class _HomeWidgetState extends State<Widget> {
   Widget build(BuildContext context) {
     GridOptions options = _gridOptions[_gridOptionsIndex];
     return Scaffold(
-      appBar: AppBar(title: Text("GridView"),actions: <Widget>[
+      appBar: AppBar(title: Text("GridView"), actions: <Widget>[
         IconButton(
           icon: Icon(Icons.settings),
           tooltip: 'Color Options',
@@ -254,7 +254,9 @@ class _HomeWidgetState extends State<Widget> {
           icon: Icon(Icons.folder_open),
           tooltip: 'Open',
           onPressed: () {
-            List<String> names = ThemeBLOC.of(context).themes;
+            List<String> names = ThemeBLOC
+                .of(context)
+                .themes;
             _showOpenDialog(context, names);
           },
         ),
@@ -268,11 +270,11 @@ class _HomeWidgetState extends State<Widget> {
             crossAxisCount: (orientation == Orientation.portrait)
                 ? options.crossAxisCountPortrait
                 : options.crossAxisCountLandscape,
-          childAspectRatio: options.childAspectRatio,
-          padding: EdgeInsets.all(options.padding),
-          mainAxisSpacing: options.spacing,
-          crossAxisSpacing: options.spacing,
-          children: _kittenTiles);
+            childAspectRatio: options.childAspectRatio,
+            padding: EdgeInsets.all(options.padding),
+            mainAxisSpacing: options.spacing,
+            crossAxisSpacing: options.spacing,
+            children: _kittenTiles);
       },),
       bottomNavigationBar: Container(
         child: Text(options.toString()), padding: EdgeInsets.all(20.0),),
@@ -289,10 +291,14 @@ class _HomeWidgetState extends State<Widget> {
         context: context,
         builder: (BuildContext context) {
           return Dialog(
-            child: ColorDialogWidget(ThemeBLOC.of(context).colorOptions),);
+            child: ColorDialogWidget(ThemeBLOC
+                .of(context)
+                .colorOptions),);
         });
     if (colorOptions != null) {
-      ThemeBLOC.of(context).colorOptions = colorOptions;
+      ThemeBLOC
+          .of(context)
+          .colorOptions = colorOptions;
     }
   }
 
@@ -305,40 +311,41 @@ class _HomeWidgetState extends State<Widget> {
         child: Text(s),
       );
     }).toList(growable: false);
-  }
 
-  String name = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-      return SimpleDialog(title: const Text('Open'), children: children);
-  });
 
-  if (name != null) {
-    setState(() {
-      ThemeBLOC.of(context).open(name);
-    });
-  }
-}
+    String name = await showDialog<String>(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(title: const Text('Open'), children: children);
+        });
 
-void _showSaveAsDialog(BuildContext context) async {
-  String name = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(child: SaveAsDialogWidget());
+    if (name != null) {
+      setState(() {
+        ThemeBLOC.of(context).open(name);
       });
-  if (name != null) {
-    ThemeBLOC.of(context).saveAs(name);
+    }
+  }
+
+  void _showSaveAsDialog(BuildContext context) async {
+    String name = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(child: SaveAsDialogWidget());
+        });
+    if (name != null) {
+      ThemeBLOC.of(context).saveAs(name);
+    }
   }
 }
 
 class ColorDialogWidget extends StatefulWidget {
-  ColorOption _colorOptions;
+  ColorOptions _colorOptions;
 
   ColorDialogWidget(this._colorOptions) : super();
 
   @override
-  _CustomDailogWidgetState createState() =>
-      new _CustomerDialogWidgetState(ColorOption.copyOf(this._colorOptions));
+  _CustomDialogWidgetState createState() =>
+      new _CustomDialogWidgetState(ColorOptions.copyOf(this._colorOptions));
 }
 
 class _CustomDialogWidgetState extends State<ColorDialogWidget> {
