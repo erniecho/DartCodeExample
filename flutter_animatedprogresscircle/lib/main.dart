@@ -28,6 +28,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   AnimationController _controller;
+  CurvedAnimation _curvedAnimation;
 
 
   void _performAnimation() {
@@ -49,6 +50,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               // Force build...
           });
         });
+    _curvedAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.bounceInOut);
   }
 
   @override
@@ -64,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
          foregroundPainter: new ProgressCirclePainter(
            lineColor: Colors.amber,
            completeColor: Colors.blueAccent,
-           completePercent: _controller.value * 100,
+           completePercent: _curvedAnimation.value * 100,
            width: 18.0)),
      ),
          constraints: BoxConstraints.expand(),
