@@ -83,7 +83,74 @@ with SingleTickerProviderStateMixin {
   Animation<Color> _textTween;
 
   @override
+  // ignore: must_call_super
+  void initState() {
+//    Create animation controller.
+  _controller = AnimationController(duration: const Duration(seconds: 1),vsync: this)
+  ..addListener(() {
+    setState(() {
+//      Force build.
+    });
+  })
+      ..addStatusListener((AnimationStatus status) {
+        if (status == AnimationStatus.completed) {
+          waitThenRest();
+        }
+      });
+
+//   Create tweens.
+  _circleTween = new ColorTween(
+    begin: Colors.teal,
+    end: Colors.white,
+  ).animate(_controller);
+
+  _textTween = new ColorTween(
+    begin: Colors.white,
+    end: Colors.teal,
+  ).animate(_controller);
+  }
+
+  Future waitThenRest() async {
+    await new Future.delayed(new Duration(milliseconds: 10000), () {
+      _controller.reverse(from: 0.9);
+      widget.onTap();
+    });
+  }
+
+  _onTap() {
+    _controller.forward(from: 0.0);
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    return Container();
+    double leftPos = widget.text.length == 3 ? 22.0 : 27.0;
+    return GestureDetector(
+      onTap: _onTap,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Ink(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white, width: 1),
+            color: _circleTween.value,
+            shape: BoxShape.circle,
+          ),
+          width: 100.0,
+          height: 100.0,
+          child: Padding(
+            padding: EdgeInsets.only(left: leftPos, top: 32.0),
+            child: Text(widget.text,
+            style: TextStyle(
+              color: _textTween.value,
+              fontSize: 28.0,
+              fontWeight:
+                _controller.status == AnimationStatus.completed
+                ? FontWeight.w500
+                    : FontWeight.w200
+            ))
+          ),
+        )
+      ),
+    );
   }
 }
