@@ -94,7 +94,7 @@ with SingleTickerProviderStateMixin {
   })
       ..addStatusListener((AnimationStatus status) {
         if (status == AnimationStatus.dismissed) {
-          _controller.forward();
+          waitThenRest();
         } else if (status == AnimationStatus.completed) {
             _controller.reverse();
           }
