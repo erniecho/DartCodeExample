@@ -93,9 +93,11 @@ with SingleTickerProviderStateMixin {
     });
   })
       ..addStatusListener((AnimationStatus status) {
-        if (status == AnimationStatus.completed) {
-          waitThenRest();
-        }
+        if (status == AnimationStatus.dismissed) {
+          _controller.forward();
+        } else if (status == AnimationStatus.completed) {
+            _controller.reverse();
+          }
       });
 
 //   Create tweens.
