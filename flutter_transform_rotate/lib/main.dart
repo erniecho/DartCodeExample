@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue, scaffoldBackgroundColor: Colors.white
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Earth'),
     );
   }
 }
@@ -32,9 +32,9 @@ class _MyHomePageState extends State<MyHomePage>
 AnimationController _controller;
 
 @override
+// ignore: must_call_super
 void initState() {
 //  Create animation controller.
-
 _controller =
     AnimationController(duration: const Duration(seconds: 10), vsync: this)
     ..addListener(() {
@@ -42,7 +42,36 @@ _controller =
 //         Force build.
       });
 
+    })
+    ..addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.dismissed) {
+        _controller.forward();
+      } else if (status == AnimationStatus.completed) {
+        _controller.reverse();
+      }
     });
+//Start animation automatically.
+_controller.forward(from: 0.0);
+}
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(widget.title),
+    ),
+    body: Center(
+      child: Transform.scale(
+        scale: 1.6,
+        child: Transform.rotate(
+          angle: math.pi * _controller.value, // rotate animation
+          child: Image.network(
+              "https://ak7.picdn.net/shutterstock/videos/3010597/thumb/1.jpg"
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 
