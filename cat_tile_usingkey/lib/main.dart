@@ -35,4 +35,19 @@ class HomeWidget extends StatefulWidget {
   HomeWidget({Key key, this.title}) : super(key : key);
 
   final String title;
+
+  @override
+  _HomeWidgetState createState() => new _HomeWidgetState();
+}
+
+class _HomeWidgetState extends State<HomeWidget> {
+  List<String> CAT_NAMES = [
+    "Tom",
+    "Oliver",
+    "Ginger",
+    "Pontouf",
+    "Madison",
+    "Bubblita",
+    "Bubbles"
+  ];
 }
