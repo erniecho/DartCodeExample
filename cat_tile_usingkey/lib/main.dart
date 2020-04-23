@@ -76,10 +76,21 @@ class _HomeWidgetState extends State<HomeWidget> {
       ),
       body: OrientationBuilder(builder: (context, orientation){
         return new GridView.builder(
-
-        );
+        itemCount: _cats.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: (orientation == Orientation.portrait) ? 2 : 3,
+                mainAxisSpacing: 10.0,
+                crossAxisSpacing: 10.0
+          ),
+          itemBuilder: (BuildContext context, int index) {
+          return CatTile(_cats[index]);
+          });
       }),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: _shuffle,
+        tooltip: 'Try more grid options',
+        child: new Icon(Icons.refresh),
+      )
     );
   }
-
 }
