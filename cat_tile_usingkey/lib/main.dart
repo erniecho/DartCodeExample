@@ -50,4 +50,36 @@ class _HomeWidgetState extends State<HomeWidget> {
     "Bubblita",
     "Bubbles"
   ];
+  Random _random = Random();
+  List<Cat> _cats = [];
+  int next(int min, int max) => min + _random.nextInt(max - min);
+
+  _HomeWidgetState() : super() {
+    // Generate list of Cat objects once.
+    for (int i = 200; i < 300; i += 10) {
+      _cats.add(Cat("http://placekitten.com/200/$i", CAT_NAMES[next(0,6)], next(1, 32), 0));
+    }
+  }
+
+  void _shuffle() {
+    //Shuffle the list of Cat objects.
+    setState(() {
+      _cats.shuffle(_random);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("GridView"),
+      ),
+      body: OrientationBuilder(builder: (context, orientation){
+        return new GridView.builder(
+
+        );
+      }),
+    );
+  }
+
 }
