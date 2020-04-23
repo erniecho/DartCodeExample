@@ -41,6 +41,7 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
+  // ignore: non_constant_identifier_names
   List<String> CAT_NAMES = [
     "Tom",
     "Oliver",
@@ -94,3 +95,40 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 }
+// ignore: must_be_immutable
+class CatTile extends StatefulWidget {
+  Cat _cat;
+  CatTile(this._cat);
+//CatTile(this._cat): super(key: ValueKey(_cat.imageSrc)); //Shuffle works
+  @override
+  _CatTileState createState()  => new _CatTileState(_cat);
+}
+
+class _CatTileState extends State<CatTile> {
+  Cat _cat;
+
+  _CatTileState(this._cat);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: GridTile(
+        header: GridTileBar(
+          title: Text("${_cat.name} ${_cat.age} years old.",
+          style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: Color.fromRGBO(0, 0, 0, 0.5),
+        ),
+        footer: GridTileBar(
+          title: Text(
+            _cat.votes == 0 ? "No votes" : "${_cat.votes} votes.",
+            textAlign: TextAlign.right,
+            style: TextStyle(fontWeight: FontWeight.bold),),),
+        child: Image.network(_cat.imageSrc, fit: BoxFit.cover,),),
+      onTap: () => _vote(),);
+  }
+   _vote() {
+  setState(() => _cat.votes++);
+  }
+}
+
+
