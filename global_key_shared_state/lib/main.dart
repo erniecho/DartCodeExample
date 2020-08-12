@@ -95,7 +95,6 @@ class _Widget2State extends State<Widget2> {
             style: Theme.of(context).textTheme.headline4)
         ],
         crossAxisAlignment: CrossAxisAlignment.stretch,
-      ),
-    );
+      ),);
   }
 }
